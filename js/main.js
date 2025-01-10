@@ -10,24 +10,90 @@
 //     },
 // ];
 
-const GITHUB_USER = "<tu_usuario_de_github_aqui>";
-const SERVER_URL = `https://dev.adalab.es/api/todo/`;
+const GITHUB_USER = "<tu_usuario_de_github_aqui>"; //Poner nuestro usuario de GITHUB sin <>
+const SERVER_URL = `https://dev.adalab.es/api/todo/`;//añadir ${GITHUB_USER} acontinuación de la URL
 
 let tasks = [];
 
-fetch(SERVER_URL)
-.then(response => response.json())
-.then(data => {
-  tasks = data.results;
-  for (const oneTask of tasks)
-    renderTask(tasks);
-});
+// fetch(SERVER_URL)
+// .then(response => response.json())
+// .then(data => {
+//   tasks = data.results;
+//   for (const oneTask of tasks)
+//     renderTask(tasks);
+// });
 
+//LOCAL STORAGE
+const tasksLocalStorage = JSON.parse(localStorage.getItem("tasks"));
+if (tasksLocalStorage !== null){
+  // si (existe el listado de tareas en Local Storage)
+  // pinta la lista de tareas almacenadas en tasksLocalStorage
+  tasks = tasksLocalStorage;
+} else {
+  //sino existe el listado de tareas en el local storage
+  // pide los datos al servidor
+  fetch(SERVER_URL)
+    .then((response) => response.json())
+    .then((data) => {
+      //guarda el listado obtenido en el Local Storage
+      // pinta la lista de tareas
+      tasks = data.results;
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+//AÑADIR NUEVA INFORMACIÓN AL SERVIDOR
+// fetch(`https://dev.adalab.es/api/todo/${GITHUB_USER}`, {
+//   method: "POST",
+//   headers: { "Content-Type": "application/json" },
+//   body: JSON.stringify(newTaskDataObject),
+// })
+//   .then((response) => response.json())
+//   .then((data) => {
+//     if (data.success) {
+//       //Completa y/o modifica el código:
+//       //Agrega la nueva tarea al listado
+      
+//       //Guarda el listado actualizado en el local storage
+//       //Visualiza nuevamente el listado de tareas
+//       //Limpia los valores de cada input
+//     } else {
+//       //muestra un mensaje de error.
+//     }
+//   });
 
+//CONSTANTES
 const list = document.querySelector('.js-list');
 const userSearch = document.querySelector('.js-text-task-filter');
 const btnSearch = document.querySelector('.js-btn-filter');
 const msg = document.querySelector('.js-msg');
+const addTask = document.querySelector('.js-text-task-add');
+const btnAddTask = document.querySelector('.js-btn-add');
+
+const handleNewTask = (event) => {
+  event.preventDefault();
+
+  // 1. Recoge el nombre de la tarea
+  const addTaskValue = addTask.value;
+
+  // 2. Crea un objeto para la nueva tarea
+  const newTask = {
+    name: addTaskValue, // sustituye este string vacío por el nombre de la tarea nueva - misma estructura que la anterior
+    completed: false,
+  };
+
+  // 3. Añade la nueva tarea al array de tareas
+  tasks.push(newTask);
+  localStorage.setItem('tasks', JSON.stringify(tasks));
+  
+
+  // 4. Vuelve a pintar las tareas
+  renderTask(tasks);
+};
+
+btnAddTask.addEventListener('click', handleNewTask);
 
 function handleClickSearch(ev){
   ev.preventDefault();
@@ -39,12 +105,13 @@ function handleClickSearch(ev){
 btnSearch.addEventListener('click', handleClickSearch);
 
 function renderMessageTasks () {
-  const completedTasks = tasks.find(task => task.completed === 'true');
-  console.log(`Tenemos ${completedTasks.length} tareas completadas`)
+  const completedTasks = tasks.filter(task => task.completed === true);
+  // console.log(`Tenemos ${completedTasks.length} tareas completadas`);
+  console.log(completedTasks);
 
-  const uncompletedTasks = tasks.find(task => task.completed === 'false');
+  const uncompletedTasks = tasks.filter(task => task.completed === false);
 
-  msg.innerHTML = `Tienes ${tasks.length} tareas, ${completedTasks} tareas completadas y ${uncompletedTasks} tareas pendientes de realizar.`
+  msg.innerHTML = `Tienes ${tasks.length} tareas, ${completedTasks.length} tareas completadas y ${uncompletedTasks.length} tareas pendientes de realizar.`
 
 }
 
@@ -64,11 +131,8 @@ function renderTask(arrTasks) {
             
         }
         list.innerHTML += `<li class="${css}"><input type="checkbox" ${check} id="${task.id}">${task.name}</li>`;
-       
-        
     }
     renderMessageTasks();
-    
 };
 
 renderTask(tasks);
@@ -94,4 +158,6 @@ const handleClickList = (event) => {
 };
 
 list.addEventListener("click", handleClickList);
+
+
 
