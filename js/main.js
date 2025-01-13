@@ -10,8 +10,8 @@
 //     },
 // ];
 
-const GITHUB_USER = "<tu_usuario_de_github_aqui>"; //Poner nuestro usuario de GITHUB sin <>
-const SERVER_URL = `https://dev.adalab.es/api/todo/`;//añadir ${GITHUB_USER} acontinuación de la URL
+const GITHUB_USER = "mjgarreq"; //Poner nuestro usuario de GITHUB sin <>
+const SERVER_URL = `https://dev.adalab.es/api/todo/${GITHUB_USER}`;//añadir ${GITHUB_USER} acontinuación de la URL
 
 let tasks = [];
 
@@ -118,19 +118,34 @@ function renderMessageTasks () {
 
 
 function renderTask(arrTasks) {
-    list.innerHTML = '';
+    // list.innerHTML = '';
   
     
 
     for (const task of arrTasks) {
-        let css = '';
-        let check = '';
+        
+       
+        // list.innerHTML += `<li class="${css}"><input type="checkbox" ${check} id="${task.id}">${task.name}</li>`;
+
+        const li = document.createElement('li');
+        list.appendChild(li);
+        
+
+        const input = document.createElement('input');
+        li.appendChild(input);
+
+        input.setAttribute('type', 'checkbox');
+        input.setAttribute('id', task.id);
+        
+
+        const contentLi = document.createTextNode(task.name);
+        li.appendChild(contentLi);
+
         if (task.completed) {
-            css = 'tachado';
-            check = 'checked';
-            
+          input.setAttribute('checked', true);
+          li.setAttribute('class', 'tachado');
         }
-        list.innerHTML += `<li class="${css}"><input type="checkbox" ${check} id="${task.id}">${task.name}</li>`;
+
     }
     renderMessageTasks();
 };
