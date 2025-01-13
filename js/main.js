@@ -44,25 +44,7 @@ if (tasksLocalStorage !== null){
       console.error(error);
     });
 }
-//AÑADIR NUEVA INFORMACIÓN AL SERVIDOR
-// fetch(`https://dev.adalab.es/api/todo/${GITHUB_USER}`, {
-//   method: "POST",
-//   headers: { "Content-Type": "application/json" },
-//   body: JSON.stringify(newTaskDataObject),
-// })
-//   .then((response) => response.json())
-//   .then((data) => {
-//     if (data.success) {
-//       //Completa y/o modifica el código:
-//       //Agrega la nueva tarea al listado
-      
-//       //Guarda el listado actualizado en el local storage
-//       //Visualiza nuevamente el listado de tareas
-//       //Limpia los valores de cada input
-//     } else {
-//       //muestra un mensaje de error.
-//     }
-//   });
+
 
 //CONSTANTES
 const list = document.querySelector('.js-list');
@@ -85,12 +67,37 @@ const handleNewTask = (event) => {
   };
 
   // 3. Añade la nueva tarea al array de tareas
-  tasks.push(newTask);
-  localStorage.setItem('tasks', JSON.stringify(tasks));
   
+  
+  
+  //AÑADIR NUEVA INFORMACIÓN AL SERVIDOR
+  fetch(SERVER_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(newTask),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        //Completa y/o modifica el código:
+        //Agrega la nueva tarea al listado
+        tasks.push(newTask);
+        console.log(tasks);
+        //Guarda el listado actualizado en el local storage
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        //Visualiza nuevamente el listado de tareas
+        renderTask(tasks);
+        //Limpia los valores de cada input
+        newTask.name = '';
+        newTask.completed = false;
+      } else {
+        //muestra un mensaje de error.
+          console.error('ERROR');
+      }
+    });
 
   // 4. Vuelve a pintar las tareas
-  renderTask(tasks);
+  // renderTask(tasks);
 };
 
 btnAddTask.addEventListener('click', handleNewTask);
@@ -118,7 +125,7 @@ function renderMessageTasks () {
 
 
 function renderTask(arrTasks) {
-    // list.innerHTML = '';
+    list.innerHTML = '';
   
     
 
@@ -168,11 +175,16 @@ const handleClickList = (event) => {
       tasks[indexTask].completed = true;
     }
   console.log(tasks);
+  console.log(taskId)
   // Pinta de nuevo las tareas en el html
   renderTask(tasks);
 };
 
 list.addEventListener("click", handleClickList);
+
+/*
+Modificar la función del evento escucha parecido al ejercicio que hemos hecho hoy. Creemos que habría que hacer el for sobre los inputs y revisar si está checked
+*/
 
 
 
